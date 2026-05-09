@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.2/papaparse.min.js"></script>
     <style>
         :root {
             --blue-dark: #1c2854;
@@ -39,7 +41,6 @@
         }
         .container { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem; }
 
-        /* ── HEADER / GOV BRANDING ── */
         header {
             background: var(--blue-dark);
             color: var(--white);
@@ -63,10 +64,7 @@
             height: auto;
             order: 1;
         }
-        .gov-logo-text {
-            text-align: right;
-            order: 0;
-        }
+        .gov-logo-text { text-align: right; order: 0; }
         .gov-logo-text .top {
             font-size: 0.7rem;
             font-weight: 500;
@@ -89,17 +87,9 @@
             line-height: 1.1;
             opacity: 0.85;
         }
-        .gold-line {
-            width: 100%;
-            height: 4px;
-            background: var(--gold);
-            border: 0;
-            margin: 0;
-        }
+        .gold-line { width: 100%; height: 4px; background: var(--gold); border: 0; margin: 0; }
 
-        .header-title {
-            padding: 1.5rem 0 2rem;
-        }
+        .header-title { padding: 1.5rem 0 2rem; }
         .header-title h1 {
             font-size: clamp(1.5rem, 4vw, 2.4rem);
             font-weight: 700;
@@ -117,7 +107,6 @@
             opacity: 0.65;
         }
 
-        /* ── SUMMARY CARDS ── */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -146,7 +135,6 @@
         .summary-card.bad .value { color: var(--red); }
         .summary-card.neutral .value { color: var(--blue-dark); }
 
-        /* ── SECTIONS ── */
         section { margin: 2.25rem 0; }
         section h2 {
             font-size: clamp(1.15rem, 2.5vw, 1.45rem);
@@ -165,7 +153,6 @@
             margin-left: 0.5rem;
         }
 
-        /* ── TABLE ── */
         .table-wrap {
             overflow-x: auto;
             background: var(--card);
@@ -199,7 +186,6 @@
         .badge-amber { background: var(--amber-bg); color: var(--amber); }
         .badge-blue { background: #dbeafe; color: var(--blue-dark); }
 
-        /* ── SPLIT PANELS ── */
         .split-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -209,7 +195,6 @@
             .split-grid { grid-template-columns: 1fr; }
         }
 
-        /* ── CALLOUTS ── */
         .callout {
             background: #eef4ff;
             border-left: 4px solid var(--blue-dark);
@@ -225,7 +210,6 @@
         }
         .callout-warn strong { color: #8a6d0b; }
 
-        /* ── FOOTER ── */
         footer {
             background: var(--blue-dark);
             color: rgba(255,255,255,0.75);
@@ -238,7 +222,83 @@
         footer a:hover { text-decoration: underline; }
         footer .gold-line { margin-bottom: 1rem; }
 
-        /* ── RESPONSIVE TWEAKS ── */
+        /* Map styles */
+        #map-container {
+            background: var(--card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: 1rem;
+            overflow: hidden;
+        }
+        #map-container svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .municipio {
+            stroke: #fff;
+            stroke-width: 0.5;
+            transition: opacity 0.2s, stroke-width 0.2s;
+            cursor: pointer;
+        }
+        .municipio:hover {
+            opacity: 0.8;
+            stroke-width: 1.5;
+            stroke: var(--blue-dark);
+        }
+        .municipio.grade-A { fill: #16a34a; }
+        .municipio.grade-B { fill: #65a30d; }
+        .municipio.grade-C { fill: #eab308; }
+        .municipio.grade-D { fill: #f97316; }
+        .municipio.grade-F { fill: #dc2626; }
+        .municipio.grade-none { fill: #94a3b8; }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .legend-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        #tooltip {
+            position: fixed;
+            background: var(--blue-dark);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 1000;
+            max-width: 220px;
+            line-height: 1.4;
+        }
+        #tooltip.visible { opacity: 1; }
+
+        .chart-wrap {
+            background: var(--card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: 1rem;
+        }
+        .chart-wrap canvas { max-height: 300px; }
+
         @media (max-width: 600px) {
             .header-top { flex-direction: row; }
             .gov-logo img { width: 40px; }
@@ -278,7 +338,7 @@
         <div class="header-title">
             <h1>🏛️ Salud Fiscal Municipal</h1>
             <p>Evolución de las finanzas de los 78 municipios de Puerto Rico, según el Índice de Salud Fiscal Municipal de <strong>ABRE Puerto Rico</strong> / Centro de Investigación y Política Pública (CIPP).</p>
-            <div class="meta">📊 Datos: ABRE Puerto Rico · Período: AF 2013–2022 · Actualizado: febrero 2025</div>
+            <div class="meta">📊 Datos: ABRE Puerto Rico · Período: AF 2010–2022 · Actualizado: febrero 2025</div>
         </div>
     </div>
 </header>
@@ -286,32 +346,42 @@
 <main class="container">
 
     <!-- Summary Cards -->
-    <div class="summary-grid">
-        <div class="summary-card good">
-            <div class="label">Municipios con déficit (2022)</div>
-            <div class="value">44%</div>
-            <div class="change">⬇️ 16 pp desde 2020</div>
-        </div>
-        <div class="summary-card good">
-            <div class="label">Disminuyeron activos netos (2022)</div>
-            <div class="value">4%</div>
-            <div class="change">⬇️ de 54% en 2020</div>
-        </div>
-        <div class="summary-card good">
-            <div class="label">Dependencia >40% del gobierno central</div>
-            <div class="value">10%</div>
-            <div class="change">⬇️ de 40% en 2020</div>
-        </div>
+    <div class="summary-grid" id="summary-cards">
         <div class="summary-card neutral">
-            <div class="label">Municipios sin auditoría (2022)</div>
-            <div class="value">5</div>
-            <div class="change">Camuy, Guánica, Loíza, Morovis, Villalba</div>
+            <div class="label">Cargando datos…</div>
+            <div class="value">—</div>
         </div>
     </div>
 
-    <!-- Trend Table -->
+    <!-- Map -->
+    <section>
+        <h2>🗺️ Mapa de salud fiscal (2022)</h2>
+        <div id="map-container">
+            <object id="map-object" data="mapa.svg" type="image/svg+xml" style="width:100%;height:auto;">
+                Cargando mapa…
+            </object>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-swatch" style="background:#16a34a"></div> A (Sólido)</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#65a30d"></div> B</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#eab308"></div> C</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#f97316"></div> D</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#dc2626"></div> F (Crisis)</div>
+                <div class="legend-item"><div class="legend-swatch" style="background:#94a3b8"></div> Sin datos</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trend Chart -->
     <section>
         <h2>📈 Tendencia general</h2>
+        <div class="chart-wrap">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </section>
+
+    <!-- Trend Table -->
+    <section>
+        <h2>📋 Indicadores clave por año</h2>
         <div class="table-wrap">
             <table>
                 <thead>
@@ -377,31 +447,13 @@
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Municipios Sólidos (A)</th><th>Puntaje</th></tr></thead>
-                    <tbody>
-                        <tr><td>Orocovis</td><td><span class="badge badge-green">A</span></td></tr>
-                        <tr><td>Culebra</td><td><span class="badge badge-green">A</span></td></tr>
-                        <tr><td>Lares</td><td><span class="badge badge-green">A</span></td></tr>
-                        <tr><td>Hatillo</td><td><span class="badge badge-green">A</span></td></tr>
-                        <tr><td>Fajardo</td><td><span class="badge badge-green">A</span></td></tr>
-                        <tr><td>San Sebastián</td><td><span class="badge badge-green">A</span></td></tr>
-                        <tr><td>Vega Alta</td><td><span class="badge badge-green">A</span></td></tr>
-                    </tbody>
+                    <tbody id="top-municipios"></tbody>
                 </table>
             </div>
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Municipios en Crisis (F)</th><th>Puntaje</th></tr></thead>
-                    <tbody>
-                        <tr><td>Yabucoa</td><td><span class="badge badge-red">F</span></td></tr>
-                        <tr><td>Salinas</td><td><span class="badge badge-red">F</span></td></tr>
-                        <tr><td>Ciales</td><td><span class="badge badge-red">F</span></td></tr>
-                        <tr><td>Maunabo</td><td><span class="badge badge-red">F</span></td></tr>
-                        <tr><td>Santa Isabel</td><td><span class="badge badge-red">F</span></td></tr>
-                        <tr><td>Florida</td><td><span class="badge badge-red">F</span></td></tr>
-                        <tr><td>Maricao</td><td><span class="badge badge-red">F</span></td></tr>
-                        <tr><td>Ceiba</td><td><span class="badge badge-red">F</span></td></tr>
-                        <tr><td>Guayanilla</td><td><span class="badge badge-red">F</span></td></tr>
-                    </tbody>
+                    <tbody id="bottom-municipios"></tbody>
                 </table>
             </div>
         </div>
@@ -441,6 +493,189 @@
         </p>
     </div>
 </footer>
+
+<div id="tooltip"></div>
+
+<script>
+// ── Grade color mapping ──
+const GRADE_COLORS = {
+    'A': '#16a34a',
+    'B': '#65a30d',
+    'C': '#eab308',
+    'D': '#f97316',
+    'F': '#dc2626'
+};
+
+// ── Normalize municipio name for SVG id lookup ──
+function normalizeName(name) {
+    return name.toLowerCase()
+        .replace(/[áäàâ]/g, 'a')
+        .replace(/[éëèê]/g, 'e')
+        .replace(/[íïìî]/g, 'i')
+        .replace(/[óöòô]/g, 'o')
+        .replace(/[úüùû]/g, 'u')
+        .replace(/[ñ]/g, 'n')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+}
+
+// ── Load CSV and render everything ──
+async function loadData() {
+    const resp = await fetch('data/letter_grades.csv');
+    const csv = await resp.text();
+    const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
+
+    const rows = parsed.data;
+    const years = Object.keys(rows[0]).filter(k => k !== 'municipio');
+    const latestYear = years[years.length - 1];
+
+    // Build grade map for latest year
+    const gradeMap = {};
+    const gradeCounts = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0, 'none': 0 };
+    rows.forEach(r => {
+        const g = (r[latestYear] || '').trim().toUpperCase();
+        gradeMap[normalizeName(r.municipio)] = g;
+        if (g in gradeCounts) gradeCounts[g]++;
+        else gradeCounts['none']++;
+    });
+
+    // ── Color the SVG map ──
+    const mapObj = document.getElementById('map-object');
+    mapObj.addEventListener('load', () => {
+        const svgDoc = mapObj.contentDocument;
+        if (!svgDoc) return;
+        const paths = svgDoc.querySelectorAll('.municipio');
+        paths.forEach(path => {
+            const id = path.getAttribute('id') || '';
+            const grade = gradeMap[id] || 'none';
+            const color = GRADE_COLORS[grade] || '#94a3b8';
+            path.style.fill = color;
+            path.classList.add('grade-' + grade);
+            path.setAttribute('data-grade', grade);
+
+            // Tooltip
+            path.addEventListener('mouseenter', (e) => {
+                const name = id.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                const g = grade === 'none' ? 'Sin datos' : grade;
+                showTooltip(e, `${name} — ${g}`);
+            });
+            path.addEventListener('mousemove', moveTooltip);
+            path.addEventListener('mouseleave', hideTooltip);
+        });
+    });
+
+    // ── Summary cards ──
+    const total = rows.length;
+    const deficitCount = rows.filter(r => (r[latestYear] || '').trim().toUpperCase() === 'F' || (r[latestYear] || '').trim().toUpperCase() === 'D').length;
+    const solidCount = rows.filter(r => (r[latestYear] || '').trim().toUpperCase() === 'A').length;
+    const pctDeficit = Math.round(deficitCount / total * 100);
+    const pctSolid = Math.round(solidCount / total * 100);
+
+    document.getElementById('summary-cards').innerHTML = `
+        <div class="summary-card ${pctDeficit > 40 ? 'bad' : 'good'}">
+            <div class="label">En déficit o crisis (D/F) ${latestYear}</div>
+            <div class="value">${pctDeficit}%</div>
+            <div class="change">${deficitCount} de ${total} municipios</div>
+        </div>
+        <div class="summary-card good">
+            <div class="label">Salud sólida (A) ${latestYear}</div>
+            <div class="value">${pctSolid}%</div>
+            <div class="change">${solidCount} de ${total} municipios</div>
+        </div>
+        <div class="summary-card neutral">
+            <div class="label">Municipios sin auditoría (2022)</div>
+            <div class="value">5</div>
+            <div class="change">Camuy, Guánica, Loíza, Morovis, Villalba</div>
+        </div>
+        <div class="summary-card neutral">
+            <div class="label">Año más reciente</div>
+            <div class="value">${latestYear}</div>
+            <div class="change">${years.length} años de datos</div>
+        </div>
+    `;
+
+    // ── Top / Bottom lists ──
+    const sorted = [...rows].sort((a, b) => {
+        const ga = (a[latestYear] || 'F').trim().toUpperCase();
+        const gb = (b[latestYear] || 'F').trim().toUpperCase();
+        return ga.localeCompare(gb);
+    });
+    const topList = sorted.filter(r => (r[latestYear] || '').trim().toUpperCase() === 'A').slice(0, 7);
+    const bottomList = sorted.filter(r => (r[latestYear] || '').trim().toUpperCase() === 'F').slice(0, 9);
+
+    document.getElementById('top-municipios').innerHTML = topList.map(r =>
+        `<tr><td>${r.municipio}</td><td><span class="badge badge-green">A</span></td></tr>`
+    ).join('');
+    document.getElementById('bottom-municipios').innerHTML = bottomList.map(r =>
+        `<tr><td>${r.municipio}</td><td><span class="badge badge-red">F</span></td></tr>`
+    ).join('');
+
+    // ── Trend chart ──
+    const gradeValues = { 'A': 5, 'B': 4, 'C': 3, 'D': 2, 'F': 1 };
+    const avgByYear = years.map(y => {
+        const vals = rows.map(r => gradeValues[(r[y] || '').trim().toUpperCase()] || null).filter(v => v !== null);
+        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    });
+
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: [{
+                label: 'Promedio (A=5 … F=1)',
+                data: avgByYear,
+                borderColor: '#1c2854',
+                backgroundColor: 'rgba(28,40,84,0.1)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: '#e5bc44',
+                pointBorderColor: '#1c2854',
+                pointBorderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `Promedio: ${ctx.parsed.y.toFixed(2)} / 5.0`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    min: 1,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        callback: (v) => ['', 'F', 'D', 'C', 'B', 'A'][v]
+                    }
+                }
+            }
+        }
+    });
+}
+
+// ── Tooltip helpers ──
+const tooltip = document.getElementById('tooltip');
+function showTooltip(e, text) {
+    tooltip.textContent = text;
+    tooltip.classList.add('visible');
+    moveTooltip(e);
+}
+function moveTooltip(e) {
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top = (e.clientY + 12) + 'px';
+}
+function hideTooltip() {
+    tooltip.classList.remove('visible');
+}
+
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
 
 </body>
 </html>
