@@ -9,6 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <!-- PapaParse for CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.2/papaparse.min.js"></script>
     <style>
         :root {
             --blue-dark: #1c2854;
@@ -209,6 +213,20 @@
             .split-grid { grid-template-columns: 1fr; }
         }
 
+        /* ── CHART CONTAINERS ── */
+        .chart-wrap {
+            background: var(--card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            padding: 1.25rem;
+        }
+        .chart-wrap canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 380px;
+        }
+
         /* ── CALLOUTS ── */
         .callout {
             background: #eef4ff;
@@ -278,7 +296,7 @@
         <div class="header-title">
             <h1>🏛️ Salud Fiscal Municipal</h1>
             <p>Evolución de las finanzas de los 78 municipios de Puerto Rico, según el Índice de Salud Fiscal Municipal de <strong>ABRE Puerto Rico</strong> / Centro de Investigación y Política Pública (CIPP).</p>
-            <div class="meta">📊 Datos: ABRE Puerto Rico · Período: AF 2013–2022 · Actualizado: febrero 2025</div>
+            <div class="meta">📊 Datos: ABRE Puerto Rico · Período: AF 2010–2022 · Actualizado: febrero 2025</div>
         </div>
     </div>
 </header>
@@ -308,6 +326,25 @@
             <div class="change">Camuy, Guánica, Loíza, Morovis, Villalba</div>
         </div>
     </div>
+
+    <!-- Charts section -->
+    <section>
+        <h2>📊 Distribución de notas fiscales</h2>
+        <div class="split-grid">
+            <div class="chart-wrap">
+                <canvas id="trendChart"></canvas>
+                <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--text-muted);text-align:center;">
+                    Evolución anual del % de municipios por categoría (A–F)
+                </p>
+            </div>
+            <div class="chart-wrap">
+                <canvas id="barChart2022"></canvas>
+                <p style="margin-top:0.6rem;font-size:0.78rem;color:var(--text-muted);text-align:center;">
+                    Distribución de notas en el año fiscal 2022
+                </p>
+            </div>
+        </div>
+    </section>
 
     <!-- Trend Table -->
     <section>
@@ -441,6 +478,106 @@
         </p>
     </div>
 </footer>
+
+<script>
+// ── Load CSV & render charts ──
+(async function () {
+    const res = await fetch('data/letter_grades.csv');
+    const csv = await res.text();
+    const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
+    const rows = parsed.data;
+
+    const years = ['2010','2011','2012','2013','2014','2015','2016','2017','2018','2019','2020','2021','2022'];
+    const grades = ['A','B','C','D','F'];
+
+    // Count grades per year
+    function countByYear(year) {
+        const counts = { A:0, B:0, C:0, D:0, F:0 };
+        let total = 0;
+        rows.forEach(row => {
+            const g = (row[year] || '').trim().toUpperCase();
+            if (grades.includes(g)) { counts[g]++; total++; }
+        });
+        // Return percentages
+        const pct = {};
+        grades.forEach(g => { pct[g] = total > 0 ? Math.round((counts[g]/total)*100) : 0; });
+        return pct;
+    }
+
+    const datasets = {};
+    grades.forEach(g => { datasets[g] = []; });
+
+    years.forEach(year => {
+        const pct = countByYear(year);
+        grades.forEach(g => datasets[g].push(pct[g]));
+    });
+
+    const gradeColors = {
+        A: '#16a34a',  // green
+        B: '#2563eb',  // blue
+        C: '#d97706',  // amber
+        D: '#9333ea',  // purple
+        F: '#dc2626'   // red
+    };
+
+    // ── Trend chart (stacked area / line) ──
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: years,
+            datasets: grades.map(g => ({
+                label: g,
+                data: datasets[g],
+                borderColor: gradeColors[g],
+                backgroundColor: gradeColors[g] + '22',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 3,
+                pointHoverRadius: 6
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { usePointStyle: true, padding: 16 } },
+                tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%' } }
+            },
+            scales: {
+                y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } }
+            }
+        }
+    });
+
+    // ── Bar chart: 2022 distribution ──
+    const pct2022 = countByYear('2022');
+    new Chart(document.getElementById('barChart2022'), {
+        type: 'bar',
+        data: {
+            labels: grades,
+            datasets: [{
+                label: '% de municipios',
+                data: grades.map(g => pct2022[g]),
+                backgroundColor: grades.map(g => gradeColors[g] + 'cc'),
+                borderColor: grades.map(g => gradeColors[g]),
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { callbacks: { label: ctx => ctx.parsed.y + '%' } }
+            },
+            scales: {
+                y: { beginAtZero: true, ticks: { callback: v => v + '%' } }
+            }
+        }
+    });
+})();
+</script>
 
 </body>
 </html>
