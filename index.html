@@ -3,141 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salud Fiscal Municipal · Puerto Rico</title>
+    <title>Salud Fiscal Municipal · Gobierno de Puerto Rico</title>
     <meta name="description" content="Dashboard interactivo de la salud fiscal de los municipios de Puerto Rico, basado en el Índice de Salud Fiscal Municipal de ABRE Puerto Rico / CIPP.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏛️</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #f8fafc;
+            --blue-dark: #1c2854;
+            --gold: #e5bc44;
+            --gold-light: #f5d97a;
+            --sky: #8acff3;
+            --white: #ffffff;
+            --bg: #f4f6fa;
             --card: #ffffff;
             --text: #1e293b;
-            --text-muted: #64748b;
-            --accent: #2563eb;
-            --accent-light: #dbeafe;
+            --text-muted: #5a6a8a;
             --green: #16a34a;
             --green-bg: #dcfce7;
             --red: #dc2626;
             --red-bg: #fee2e2;
             --amber: #d97706;
             --amber-bg: #fef3c7;
-            --border: #e2e8f0;
+            --border: #dce1eb;
+            --shadow: 0 1px 4px rgba(28,40,84,0.08);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
-        .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+        .container { max-width: 1120px; margin: 0 auto; padding: 0 1.25rem; }
 
-        /* Header */
+        /* ── HEADER / GOV BRANDING ── */
         header {
-            background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-            color: white;
-            padding: 3rem 0 2.5rem;
+            background: var(--blue-dark);
+            color: var(--white);
+            padding: 1.25rem 0 0;
         }
-        header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; }
-        header p { font-size: 1.1rem; opacity: 0.9; max-width: 650px; }
-        header .meta { margin-top: 1rem; font-size: 0.9rem; opacity: 0.75; }
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+        .gov-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .gov-logo img {
+            width: 52px;
+            height: auto;
+            order: 1;
+        }
+        .gov-logo-text {
+            text-align: right;
+            order: 0;
+        }
+        .gov-logo-text .top {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+            opacity: 0.9;
+        }
+        .gov-logo-text .acronym {
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: 0.02em;
+            color: var(--gold);
+        }
+        .gov-logo-text .bottom {
+            font-size: 0.6rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            line-height: 1.1;
+            opacity: 0.85;
+        }
+        .gold-line {
+            width: 100%;
+            height: 4px;
+            background: var(--gold);
+            border: 0;
+            margin: 0;
+        }
 
-        /* Summary cards */
+        .header-title {
+            padding: 1.5rem 0 2rem;
+        }
+        .header-title h1 {
+            font-size: clamp(1.5rem, 4vw, 2.4rem);
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            line-height: 1.2;
+        }
+        .header-title p {
+            font-size: clamp(0.85rem, 2vw, 1.05rem);
+            opacity: 0.88;
+            max-width: 680px;
+        }
+        .header-title .meta {
+            margin-top: 0.6rem;
+            font-size: 0.8rem;
+            opacity: 0.65;
+        }
+
+        /* ── SUMMARY CARDS ── */
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
-            margin: -1.5rem auto 2rem;
+            margin: -1.25rem auto 2rem;
             position: relative;
             z-index: 2;
         }
         .summary-card {
             background: var(--card);
-            border-radius: 12px;
-            padding: 1.25rem 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border-radius: 10px;
+            padding: 1.1rem 1.25rem;
+            box-shadow: var(--shadow);
             border: 1px solid var(--border);
         }
-        .summary-card .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
-        .summary-card .value { font-size: 2rem; font-weight: 700; margin: 0.25rem 0 0.1rem; }
-        .summary-card .change { font-size: 0.85rem; }
+        .summary-card .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .summary-card .value { font-size: 1.8rem; font-weight: 700; margin: 0.15rem 0 0.1rem; }
+        .summary-card .change { font-size: 0.8rem; }
         .summary-card.good .value { color: var(--green); }
         .summary-card.bad .value { color: var(--red); }
-        .summary-card.neutral .value { color: var(--accent); }
+        .summary-card.neutral .value { color: var(--blue-dark); }
 
-        /* Section */
-        section { margin: 2.5rem 0; }
-        section h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
-        section h2 .emoji { font-size: 1.4rem; }
+        /* ── SECTIONS ── */
+        section { margin: 2.25rem 0; }
+        section h2 {
+            font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--blue-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        section h2::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+            margin-left: 0.5rem;
+        }
 
-        /* Table */
+        /* ── TABLE ── */
         .table-wrap {
             overflow-x: auto;
             background: var(--card);
-            border-radius: 12px;
+            border-radius: 10px;
             border: 1px solid var(--border);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            box-shadow: var(--shadow);
         }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background: #f1f5f9; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); }
+        table { width: 100%; border-collapse: collapse; min-width: 580px; }
+        th, td { padding: 0.65rem 0.9rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th {
+            background: #eef1f7;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+        }
         tr:last-child td { border-bottom: none; }
-        tr:hover td { background: #f8fafc; }
+        tr:hover td { background: #f8f9fd; }
 
         .badge {
             display: inline-block;
-            padding: 0.15rem 0.6rem;
+            padding: 0.1rem 0.55rem;
             border-radius: 999px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             font-weight: 600;
+            white-space: nowrap;
         }
         .badge-green { background: var(--green-bg); color: var(--green); }
         .badge-red { background: var(--red-bg); color: var(--red); }
         .badge-amber { background: var(--amber-bg); color: var(--amber); }
-        .badge-blue { background: var(--accent-light); color: var(--accent); }
+        .badge-blue { background: #dbeafe; color: var(--blue-dark); }
 
-        /* Trend bars */
-        .trend-bar-wrap { display: flex; align-items: center; gap: 0.75rem; }
-        .trend-bar {
-            height: 10px; border-radius: 5px;
-            background: #e2e8f0; flex: 1; overflow: hidden;
+        /* ── SPLIT PANELS ── */
+        .split-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
         }
-        .trend-bar .fill { height: 100%; border-radius: 5px; transition: width 0.6s ease; }
-        .fill-green { background: var(--green); }
-        .fill-red { background: var(--red); }
-        .fill-amber { background: var(--amber); }
-        .fill-blue { background: var(--accent); }
+        @media (max-width: 680px) {
+            .split-grid { grid-template-columns: 1fr; }
+        }
 
-        /* Callout */
+        /* ── CALLOUTS ── */
         .callout {
-            background: var(--accent-light);
-            border-left: 4px solid var(--accent);
-            padding: 1.25rem 1.5rem;
+            background: #eef4ff;
+            border-left: 4px solid var(--blue-dark);
+            padding: 1.1rem 1.25rem;
             border-radius: 0 8px 8px 0;
-            margin: 1.5rem 0;
+            margin: 1.25rem 0;
+            font-size: 0.92rem;
         }
-        .callout strong { color: var(--accent); }
-
+        .callout strong { color: var(--blue-dark); }
         .callout-warn {
-            background: var(--amber-bg);
-            border-left-color: var(--amber);
+            background: #fef9e7;
+            border-left-color: var(--gold);
         }
-        .callout-warn strong { color: var(--amber); }
+        .callout-warn strong { color: #8a6d0b; }
 
-        /* Footer */
+        /* ── FOOTER ── */
         footer {
+            background: var(--blue-dark);
+            color: rgba(255,255,255,0.75);
             text-align: center;
-            padding: 2rem 0;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border);
+            padding: 1.75rem 0;
             margin-top: 3rem;
+            font-size: 0.82rem;
         }
-        footer a { color: var(--accent); text-decoration: none; }
+        footer a { color: var(--gold); text-decoration: none; }
         footer a:hover { text-decoration: underline; }
+        footer .gold-line { margin-bottom: 1rem; }
 
+        /* ── RESPONSIVE TWEAKS ── */
         @media (max-width: 600px) {
-            header h1 { font-size: 1.6rem; }
+            .header-top { flex-direction: row; }
+            .gov-logo img { width: 40px; }
+            .gov-logo-text .acronym { font-size: 1.4rem; }
+            .gov-logo-text .top { font-size: 0.6rem; }
+            .gov-logo-text .bottom { font-size: 0.5rem; }
             .summary-grid { grid-template-columns: 1fr 1fr; }
+            .summary-card .value { font-size: 1.4rem; }
+        }
+        @media (max-width: 400px) {
+            .summary-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 0.9rem; }
         }
     </style>
 </head>
@@ -145,17 +258,34 @@
 
 <header>
     <div class="container">
-        <h1>🏛️ Salud Fiscal Municipal</h1>
-        <p>Evolución de las finanzas de los 78 municipios de Puerto Rico, según el Índice de Salud Fiscal Municipal de <strong>ABRE Puerto Rico</strong> / Centro de Investigación y Política Pública (CIPP).</p>
-        <div class="meta">
-            📊 Datos: ABRE Puerto Rico · Período: AF 2013–2022 · Última actualización: febrero 2025
+        <div class="header-top">
+            <div class="gov-logo">
+                <img src="https://cdn.prod.website-files.com/611a74761b4daf46abf5d30c/67cb56175eab2fe33680d28b_Logo%20Color%20Grande-p-130x130q80.png"
+                     alt="Escudo de Puerto Rico"
+                     loading="lazy"
+                     width="52"
+                     height="auto">
+                <div class="gov-logo-text">
+                    <div class="top">PUERTO RICO INNOVATION<br>&amp; TECHNOLOGY SERVICE</div>
+                    <div class="acronym">PRITS</div>
+                    <div class="bottom">GOBIERNO DE PUERTO RICO</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr class="gold-line">
+    <div class="container">
+        <div class="header-title">
+            <h1>🏛️ Salud Fiscal Municipal</h1>
+            <p>Evolución de las finanzas de los 78 municipios de Puerto Rico, según el Índice de Salud Fiscal Municipal de <strong>ABRE Puerto Rico</strong> / Centro de Investigación y Política Pública (CIPP).</p>
+            <div class="meta">📊 Datos: ABRE Puerto Rico · Período: AF 2013–2022 · Actualizado: febrero 2025</div>
         </div>
     </div>
 </header>
 
 <main class="container">
 
-    <!-- Summary -->
+    <!-- Summary Cards -->
     <div class="summary-grid">
         <div class="summary-card good">
             <div class="label">Municipios con déficit (2022)</div>
@@ -181,16 +311,16 @@
 
     <!-- Trend Table -->
     <section>
-        <h2><span class="emoji">📈</span> Tendencia general</h2>
+        <h2>📈 Tendencia general</h2>
         <div class="table-wrap">
             <table>
                 <thead>
                     <tr>
                         <th>Año Fiscal</th>
                         <th>Con déficit</th>
-                        <th>Disminuyeron activos netos</th>
+                        <th>Activos netos ↓</th>
                         <th>Balance negativo fondo general</th>
-                        <th>Dependencia >40% gobierno central</th>
+                        <th>Dependencia >40%</th>
                         <th>Deuda >15% ingresos</th>
                     </tr>
                 </thead>
@@ -242,8 +372,8 @@
 
     <!-- Top / Bottom -->
     <section>
-        <h2><span class="emoji">🏆</span> Mejor y peor salud fiscal (2022)</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <h2>🏆 Mejor y peor salud fiscal (2022)</h2>
+        <div class="split-grid">
             <div class="table-wrap">
                 <table>
                     <thead><tr><th>Municipios Sólidos (A)</th><th>Puntaje</th></tr></thead>
@@ -277,9 +407,9 @@
         </div>
     </section>
 
-    <!-- Key insight -->
+    <!-- Analysis -->
     <section>
-        <h2><span class="emoji">🔍</span> Análisis</h2>
+        <h2>🔍 Análisis</h2>
         <div class="callout">
             <strong>📉 La tendencia es positiva.</strong> Por primera vez en una década, menos de la mitad de los municipios (44%) operó con déficit en el año fiscal 2022. La disciplina fiscal forzada —menos transferencias estatales, restricciones de deuda— más los fondos federales (FEMA) han empujado a los ayuntamientos a ser más cautelosos. La dependencia del gobierno central se desplomó de 40% a solo 10% de los municipios.
         </div>
@@ -290,10 +420,10 @@
 
     <!-- About -->
     <section>
-        <h2><span class="emoji">📚</span> Sobre los datos</h2>
+        <h2>📚 Sobre los datos</h2>
         <p>El <strong>Índice de Salud Fiscal Municipal</strong> es elaborado por <a href="https://abrepr.org" target="_blank">ABRE Puerto Rico</a>, un proyecto del Centro de Investigación y Política Pública (CIPP). Utiliza una metodología similar a la del Mercatus Center (George Mason University) para evaluar la salud fiscal de los estados de EE.UU., adaptada a los municipios de Puerto Rico.</p>
         <p style="margin-top: 0.75rem;">Los indicadores incluyen: balance del fondo general, dependencia de transferencias del gobierno central, carga de deuda, liquidez, y tendencia de activos netos. Cada municipio recibe una clasificación de A (sólido) a F (en crisis).</p>
-        <p style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted);">
+        <p style="margin-top: 0.75rem; font-size: 0.88rem; color: var(--text-muted);">
             🔗 <a href="https://abretumunicipio.org" target="_blank">abretumunicipio.org</a> ·
             📰 <a href="https://sincomillas.com" target="_blank">Sin Comillas</a> ·
             🏛️ <a href="https://www.cipppr.org" target="_blank">CIPP</a>
@@ -303,9 +433,14 @@
 </main>
 
 <footer>
+    <hr class="gold-line">
     <div class="container">
         <p>Datos públicos · ABRE Puerto Rico / CIPP · 2025</p>
-        <p style="margin-top: 0.25rem;">Hecho con ❤️ para Puerto Rico · <a href="https://github.com/CMLTechnologiesLLC/pr-municipios-dashboard">Ver en GitHub</a></p>
+        <p style="margin-top: 0.25rem;">
+            <a href="https://github.com/CMLTechnologiesLLC/pr-municipios-dashboard">Ver en GitHub</a>
+            &nbsp;·&nbsp;
+            <a href="https://www.prits.pr.gov">PRITS</a>
+        </p>
     </div>
 </footer>
 
